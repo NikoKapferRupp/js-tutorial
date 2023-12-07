@@ -1,24 +1,20 @@
 let nameArray = [[""], [""]];
 let fieldGrid = [[],[],[]];
-let usedSpaces = [[],[],[]];
 let rlSync = require('readline-sync');
 
-gameStarter();
-
-function gridFiller(){ 
+function gridFiller(grid){ 
     for(let row = 0; row < 3; row++) {
         for(let col = 0; col < 3; col++) {
-            fieldGrid[row][col] = " ";
+            grid[row][col] = " ";
         }
     }
-    console.log("gridFiller done");
-};
+}
 
 function nameQuery(){
     let player1 = rlSync.question("Please enter the name of player 1: ");
     let player2 = rlSync.question("Please enter the name of player 2: ");
-    return [player1, player2]
-}
+    return [player1.toUpperCase(), player2.toUpperCase()]
+};
 
 function fieldBuilder(){
     console.log("\nPlayer 1: " + nameArray[0] + "       vs      " + nameArray[1] + " :Player 2")
@@ -38,8 +34,14 @@ function fieldBuilder(){
     
 };
 
-function markSetter(fieldNum, mark){
-    if(fieldNum > 5) {
+function markSetter(fieldNum, turnNum){
+    let mark;
+    if(turnNum % 2 === 0){
+        mark = 'X';
+    } else {
+        mark = 'O';
+    }
+    if(fieldNum > 5){
         fieldGrid[2][fieldNum - 6] = mark;
         } else if(fieldNum > 2 && fieldNum < 6){
             fieldGrid[1][fieldNum - 3] = mark;
@@ -48,43 +50,121 @@ function markSetter(fieldNum, mark){
                 }
 };
 
-function playerOneMark(){
-    let fieldNum = Number(rlSync.question(nameArray[0] + "! On which field do you want to put your mark?: "));
-         if(fieldNum > 5 && fieldGrid[2][fieldNum - 6] !== " ") {
-            spaceIsUsed()
-        } else if(fieldNum > 2 && fieldNum < 6 && fieldGrid[1][fieldNum - 3] !== " "){
-            
-            } else if(fieldNum < 3 && fieldGrid[0][fieldNum]){
-                
-                }
-        markSetter(fieldNum, "X");
-        fieldBuilder();
-}
+function isFieldNumValid(fieldNum) {
+    console.log(typeof fieldNum);
+    if(fieldNum < 9 && fieldNum >= 0 ) {
+        return true;
+    } else {
+        return false;
+    }
+};
 
-function playerTwoMark(){
+function fieldNumToRowCol(fieldNum) {
+    let grid = [];
+        if(fieldNum > 5) {
+            console.log(grid);
+            grid[0] = 2;
+            grid[1] = fieldNum - 6;
+            return grid;
+        } else if(fieldNum > 2 && fieldNum < 6){
+            grid[0] = 1;
+            grid[1] = fieldNum - 3;
+            return grid;
+            } else if(fieldNum < 3){
+                grid[0] = 0;
+                grid[1] = fieldNum;
+                return grid;
+            } else { console.log("error"); }
+
+};
+
+function spaceIsUsed(grid){
+    let row = grid[0];
+    let col = grid[1];
+    if(fieldGrid[row][col] === " "){
+        return true;
+    } else {
+        return false;
+    }
+};
+
+function numberQuery(turnNum){
+    let playerTurnNum;
+    if(turnNum % 2 === 0){
+        playerTurnNum = 0;
+    } else {
+        playerTurnNum = 1;
+    }
+    let fieldNum = Number(rlSync.question(nameArray[playerTurnNum] + "! On which field do you want to put your mark?: "));
+    return fieldNum;
+};
+
+function winningCondition(turnNum){
+    let mark;
+    let currentPlayerName;
     
-}
-
-function spaceIsUsed(){
+    if(turnNum % 2 === 0){
+        mark = 'X';
+        currentPlayerName = nameArray[0];
+        console.log('nameArray: ' + nameArray);
+    console.log('playerName: ' + currentPlayerName);
+    }else{
+        mark = 'O';
+        currentPlayerName = nameArray[1];
+    }
+    for(let i = 0; i < 3; i++) {
+        if(fieldGrid[i][0] === mark && fieldGrid[i][1] === mark && fieldGrid[i][2] === mark){
+            return currentPlayerName;
+        } 
+    }
+    for(let i = 0; i < 3; i++) {
+        if(fieldGrid[0][i] === mark && fieldGrid[1][i] === mark && fieldGrid[2][i] === mark){
+            return currentPlayerName;
+        } 
+    }
+    if(fieldGrid[0][0] === mark && fieldGrid[1][1] === mark && fieldGrid[2][2] === mark){
+        return currentPlayerName;
+    }else if(fieldGrid[0][2] === mark && fieldGrid[1][1] === mark && fieldGrid[2][0] === mark){
+        return currentPlayerName;
+    } else {
+        return undefined;
+    }
     
-}
+};
 
-function winningCondition(){
+function winMessage(name){
+    console.log("\nCONGRATULATIONS " + name + "! You won!\n");
 }
 
 function gameStarter(){
-    let turnName;
+    let turnNum = 0;
     let winnerName;
-    nameArray = nameQuery();
-    gridFiller();
-    fieldBuilder();
+    let isNumValid = false;
+    let validNumber;
+    
+    nameArray = nameQuery();  // calls nameQuery and puts player names into the nameArray
+    gridFiller(fieldGrid); // fills the fieldGrid with a string containing " "
+    fieldBuilder(); // prints the game field with fieldGrid values
     while(winnerName === undefined){
-        //playerOneMark();
-        let fieldNum = Number(rlSync.question(nameArray[0] + "! On which field do you want to put your mark?: "));
-        markSetter(fieldNum, "X");
+        while(isNumValid === false){
+            let num = numberQuery(turnNum);
+            isNumValid = isFieldNumValid(num);
+                if(isNumValid === true){
+                    isNumValid = spaceIsUsed(fieldNumToRowCol(num));
+                };
+            validNumber = num;
+        };
+        
+        markSetter(validNumber, turnNum);
+        winnerName = winningCondition(turnNum);
+        turnNum++;
+        isNumValid = false;
         fieldBuilder();
-        fieldNum = Number(rlSync.question(nameArray[1] + "! On which field do you want to put your mark?: "));
-        markSetter(fieldNum, "O");
-        fieldBuilder();
+        
     }
-}
+    winMessage(winnerName);
+    
+    
+};
+
+gameStarter();
