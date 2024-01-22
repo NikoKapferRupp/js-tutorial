@@ -1,0 +1,31 @@
+ <!DOCTYPE html>
+<html>
+<head>
+<title>Dungeon Dice</title>
+</head>
+<body>
+    <h1>Dungeon Dice</h1>
+    <input type="checkbox" ></input>
+    <select name="dice" id="dice">
+        <option value="d4">d4</option>
+        <option value="d6">d6</option>
+        <option value="d8">d8</option>
+        <option value="d10">d10</option>
+        <option value="d20">d20</option>
+        </select>
+    <button type="button" onclick= "rollDice()" >Roll!</button> 
+    <p>My first paragraph.</p>
+    
+    <script>
+        function rollDice() {
+            let diceFour = () => Math.floor(Math.random() * 4 + 1);
+            let diceSix = () => Math.floor(Math.random() * 6 + 1);
+            let diceTen = () => Math.floor(Math.random() * 10 + 1);
+            let diceTwenty = () => Math.floor(Math.random() * 20 + 1);
+        
+            
+        }
+    </script>
+
+</body>
+</html> 

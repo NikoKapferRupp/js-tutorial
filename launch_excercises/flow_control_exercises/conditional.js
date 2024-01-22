@@ -1,4 +1,4 @@
-let a = prompt('Entrer a number');
+let a = prompt('Enter a number');
 
 if (a === '3') {
     console.log("a is 3");
